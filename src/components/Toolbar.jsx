@@ -1,11 +1,14 @@
 export default function Toolbar({
+  sidebarOpen, setSidebarOpen,
   docType, setDocType,
   theme, setTheme,
   clientKey, setClientKey,
   onSave, onLoad, onClear, onNew,
 }) {
   return (
-    <div className="toolbar no-print">
+    <aside className={`sidebar no-print ${sidebarOpen ? 'open' : ''}`}>
+      <button className="close-btn" onClick={() => setSidebarOpen(false)}>✕ Close Menu</button>
+
       <strong>LEIMARICS</strong> Document Generator
 
       <select value={docType} onChange={(e) => setDocType(e.target.value)}>
@@ -32,13 +35,12 @@ export default function Toolbar({
       <button className="warn" onClick={onClear}>🗑 Clear this client</button>
       <button onClick={onNew}>✚ New blank document</button>
 
-      <div className="spacer" />
       <button className="primary" onClick={() => window.print()}>⬇ Save as PDF</button>
 
       <div className="hint">
         Type a client name above, then Save/Load to keep separate drafts per client. Everything on the page is a real
         editable field — click and type. Use the ⊕ / × buttons to add or remove pricing cards, table rows, and list items.
       </div>
-    </div>
+    </aside>
   )
 }
