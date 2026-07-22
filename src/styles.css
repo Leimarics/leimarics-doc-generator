@@ -75,7 +75,7 @@ body {
 
 /* ---------- TOOLBAR ---------- */
 .toolbar {
-  position: sticky; top: 0; z-index: 50;
+  position: sticky; top: 0; z-index: 100;
   background: #161614; border-bottom: 2px solid var(--teal);
   padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
   font-size: 13px; color: #F5F5F2;
@@ -223,3 +223,44 @@ td.num, th.num { text-align: right; }
 .small-note { font-size: 11px; color: var(--muted); font-weight: 300; margin-top: 8px; }
 .footer { border-top: 1px solid var(--border); margin-top: 30px; padding-top: 12px; text-align: center; font-size: 10px; color: var(--muted); }
 .footer-field { text-align: center; }
+
+/* ---------- MOBILE RESPONSIVENESS ---------- */
+@media screen and (max-width: 768px) {
+  .sheet {
+    margin: 10px;
+    padding: 20px 15px;
+    width: auto;
+    overflow-x: auto;
+  }
+  
+  .brand-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .meta-box {
+    text-align: center;
+    width: 100%;
+  }
+  
+  .meta-box .val, 
+  .meta-box .prepared .label, 
+  .meta-box .prepared .val {
+    text-align: center;
+  }
+  
+  .feature-grid, .bill-to {
+    grid-template-columns: 1fr;
+  }
+  
+  .toolbar {
+    justify-content: center;
+  }
+  
+  .client-key-input {
+    min-width: 100%;
+  }
+}
+
