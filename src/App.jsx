@@ -91,6 +91,7 @@ function defaultDoc() {
 export default function App() {
   const [docType, setDocType] = useState('proposal')
   const [clientKey, setClientKey] = useState('')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [doc, setDoc] = useState(defaultDoc())
 
   const isInvoice = docType === 'invoice'
@@ -164,8 +165,11 @@ export default function App() {
   }
 
   return (
-    <>
+    <div className="app-layout">
+      <button className="no-print menu-toggle" onClick={() => setSidebarOpen(true)}>☰ Menu</button>
       <Toolbar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
         docType={docType}
         setDocType={handleSetDocType}
         theme={doc.theme}
@@ -178,110 +182,112 @@ export default function App() {
         onNew={handleNew}
       />
 
-      <div className="sheet" id="sheet">
-        <BrandHeader theme={doc.theme} docType={docType} meta={doc.meta} setMeta={setMeta} />
+      <main className="main-workspace">
+        <div className="sheet" id="sheet">
+          <BrandHeader theme={doc.theme} docType={docType} meta={doc.meta} setMeta={setMeta} />
 
-        <div className="doc-title">
-          <Field className="doc-h1" value={doc.title.main} onChange={updateField('title', 'main')} />
-          <Field className="doc-subtitle" value={doc.title.subtitle} onChange={updateField('title', 'subtitle')} />
-          <Field multiline className="doc-intro" value={doc.title.intro} onChange={updateField('title', 'intro')} />
+          <div className="doc-title">
+            <Field className="doc-h1" value={doc.title.main} onChange={updateField('title', 'main')} />
+            <Field className="doc-subtitle" value={doc.title.subtitle} onChange={updateField('title', 'subtitle')} />
+            <Field multiline className="doc-intro" value={doc.title.intro} onChange={updateField('title', 'intro')} />
+          </div>
+
+          {showProposalSections && (
+            <>
+              <div className="section">
+                <div className="section-bar">01 — Package Options</div>
+                <PricingCards cards={doc.cards} setCards={setCards} />
+              </div>
+
+              <div className="callout">
+                <Field multiline className="callout-field" value={doc.recommendation} onChange={(v) => setDoc((d) => ({ ...d, recommendation: v }))} />
+              </div>
+
+              <div className="section">
+                <div className="section-bar">02 — What's Included</div>
+                <DataTable
+                  columns={['Deliverable', 'Option A', 'Option B']}
+                  rows={doc.includedRows}
+                  setRows={setIncludedRows}
+                />
+              </div>
+
+              <div className="section">
+                <div className="section-bar">03 — Exclusions (Not Included)</div>
+                <ListSection items={doc.exclusions} setItems={setExclusions} />
+              </div>
+
+              <div className="section">
+                <div className="section-bar">04 — Payment Terms</div>
+                <DataTable
+                  columns={['Milestone', 'Amount', 'Trigger']}
+                  rows={doc.paymentRows}
+                  setRows={setPaymentRows}
+                />
+                <Field
+                  multiline
+                  className="small-note"
+                  value={doc.paymentNote}
+                  onChange={(v) => setDoc((d) => ({ ...d, paymentNote: v }))}
+                />
+              </div>
+
+              <div className="section">
+                <div className="section-bar">05 — Delivery Timeline</div>
+                <DataTable
+                  columns={['Day', 'Milestone']}
+                  colWidths={['70px']}
+                  rows={doc.timelineRows}
+                  setRows={setTimelineRows}
+                />
+              </div>
+
+              <div className="section">
+                <div className="section-bar">06 — Why Leimarics</div>
+                <FeatureGrid features={doc.features} setFeatures={setFeatures} />
+              </div>
+
+              <div className="section">
+                <div className="section-bar">07 — Next Steps</div>
+                <ListSection items={doc.steps} setItems={setSteps} ordered />
+              </div>
+            </>
+          )}
+
+          {isInvoice && (
+            <>
+              <div className="section">
+                <div className="section-bar">Line Items</div>
+                <InvoiceTable
+                  lines={doc.invoiceLines}
+                  setLines={setInvoiceLines}
+                  taxRate={doc.invoiceTaxRate}
+                  setTaxRate={setInvoiceTaxRate}
+                  currency={doc.invoiceCurrency}
+                  setCurrency={setInvoiceCurrency}
+                />
+              </div>
+              <div className="section">
+                <div className="section-bar">Payment Details</div>
+                <Field
+                  multiline
+                  className="small-note"
+                  value={doc.invoicePaymentDetails}
+                  onChange={(v) => setDoc((d) => ({ ...d, invoicePaymentDetails: v }))}
+                />
+              </div>
+            </>
+          )}
+
+          <div className="callout">
+            <Field multiline className="callout-field" value={doc.closingNote} onChange={(v) => setDoc((d) => ({ ...d, closingNote: v }))} />
+          </div>
+
+          <div className="footer">
+            <Field multiline className="footer-field" value={doc.footerText} onChange={(v) => setDoc((d) => ({ ...d, footerText: v }))} />
+          </div>
         </div>
-
-        {showProposalSections && (
-          <>
-            <div className="section">
-              <div className="section-bar">01 — Package Options</div>
-              <PricingCards cards={doc.cards} setCards={setCards} />
-            </div>
-
-            <div className="callout">
-              <Field multiline className="callout-field" value={doc.recommendation} onChange={(v) => setDoc((d) => ({ ...d, recommendation: v }))} />
-            </div>
-
-            <div className="section">
-              <div className="section-bar">02 — What's Included</div>
-              <DataTable
-                columns={['Deliverable', 'Option A', 'Option B']}
-                rows={doc.includedRows}
-                setRows={setIncludedRows}
-              />
-            </div>
-
-            <div className="section">
-              <div className="section-bar">03 — Exclusions (Not Included)</div>
-              <ListSection items={doc.exclusions} setItems={setExclusions} />
-            </div>
-
-            <div className="section">
-              <div className="section-bar">04 — Payment Terms</div>
-              <DataTable
-                columns={['Milestone', 'Amount', 'Trigger']}
-                rows={doc.paymentRows}
-                setRows={setPaymentRows}
-              />
-              <Field
-                multiline
-                className="small-note"
-                value={doc.paymentNote}
-                onChange={(v) => setDoc((d) => ({ ...d, paymentNote: v }))}
-              />
-            </div>
-
-            <div className="section">
-              <div className="section-bar">05 — Delivery Timeline</div>
-              <DataTable
-                columns={['Day', 'Milestone']}
-                colWidths={['70px']}
-                rows={doc.timelineRows}
-                setRows={setTimelineRows}
-              />
-            </div>
-
-            <div className="section">
-              <div className="section-bar">06 — Why Leimarics</div>
-              <FeatureGrid features={doc.features} setFeatures={setFeatures} />
-            </div>
-
-            <div className="section">
-              <div className="section-bar">07 — Next Steps</div>
-              <ListSection items={doc.steps} setItems={setSteps} ordered />
-            </div>
-          </>
-        )}
-
-        {isInvoice && (
-          <>
-            <div className="section">
-              <div className="section-bar">Line Items</div>
-              <InvoiceTable
-                lines={doc.invoiceLines}
-                setLines={setInvoiceLines}
-                taxRate={doc.invoiceTaxRate}
-                setTaxRate={setInvoiceTaxRate}
-                currency={doc.invoiceCurrency}
-                setCurrency={setInvoiceCurrency}
-              />
-            </div>
-            <div className="section">
-              <div className="section-bar">Payment Details</div>
-              <Field
-                multiline
-                className="small-note"
-                value={doc.invoicePaymentDetails}
-                onChange={(v) => setDoc((d) => ({ ...d, invoicePaymentDetails: v }))}
-              />
-            </div>
-          </>
-        )}
-
-        <div className="callout">
-          <Field multiline className="callout-field" value={doc.closingNote} onChange={(v) => setDoc((d) => ({ ...d, closingNote: v }))} />
-        </div>
-
-        <div className="footer">
-          <Field multiline className="footer-field" value={doc.footerText} onChange={(v) => setDoc((d) => ({ ...d, footerText: v }))} />
-        </div>
-      </div>
-    </>
+      </main>
+    </div>
   )
 }
